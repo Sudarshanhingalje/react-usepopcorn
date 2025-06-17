@@ -270,21 +270,28 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
   useKey("Escape", onCloseMovie);
 
-  useEffect(
-    function () {
-      async function getMovieDetails() {
-        setIsLoading(true);
-        const res = await fetch(
-          `https://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
-        );
-        const data = await res.json();
-        setMovie(data);
-        setIsLoading(false);
-      }
-      getMovieDetails();
-    },
-    [selectedId]
-  );
+ useEffect(() => {
+  async function getMovieDetails() {
+    if (!selectedId) return;
+
+    try {
+      setIsLoading(true);
+      const res = await fetch(
+        `https://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+      );
+      if (!res.ok) throw new Error("Network response was not ok");
+
+      const data = await res.json();
+      setMovie(data);
+    } catch (err) {
+      console.error("Fetch error:", err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  getMovieDetails();
+}, [selectedId]);
 
   useEffect(
     function () {
